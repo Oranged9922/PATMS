@@ -1,15 +1,35 @@
+using API;
+using API.Common.Errors;
+using Application;
+using Infrastructure;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
-namespace API
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 {
-    public class Program
+    _ = builder.Services
+        .AddPresentation()
+        .AddApplication()
+        .AddInfrastructure(builder.Configuration);
+    builder.Services.AddCors();
+    _ = builder.Services.AddControllers();
+
+    _ = builder.Services.AddSingleton<ProblemDetailsFactory, PatmsProblemDetailsFactory>();
+}
+
+WebApplication app = builder.Build();
+{
+    _ = app
+        .UseExceptionHandler("/error")
+        .UseHttpsRedirection()
+        .UseAuthentication()
+        .UseAuthorization();
+    _ = app.MapControllers();
+    app.UseCors(builder =>
     {
-        public static void Main(string[] args)
-        {
-            WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-
-            var app = builder.Build();
-
-            app.Run();
-        }
-    }
+        builder.WithOrigins("http://localhost:5230")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+    app.Run();
 }
