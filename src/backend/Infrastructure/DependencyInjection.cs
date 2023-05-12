@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Application.Interfaces.Services;
+using Infrastructure.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure
@@ -13,7 +15,7 @@ namespace Infrastructure
             // Add db context
             services.AddAuth(configuration);
             services.AddPersistance();
-            // add datetimeprovider as singleton
+            services.AddSingleton<IDateTimeProvider, RealDateTimeProvider>();
 
             return services;
         }
