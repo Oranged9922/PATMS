@@ -53,7 +53,27 @@ namespace API.Common.Errors
                                                                                 string? detail = null,
                                                                                 string? instance = null)
         {
-            throw new NotImplementedException();
+            ArgumentNullException.ThrowIfNull(modelStateDictionary);
+
+            statusCode ??= 400;
+
+            ValidationProblemDetails problemDetails = new(modelStateDictionary)
+            {
+                Status = statusCode,
+                Type = type,
+                Detail = detail,
+                Instance = instance,
+            };
+
+            if (title != null)
+            {
+                // For validation problem details, don't overwrite the default title with null.
+                problemDetails.Title = title;
+            }
+
+            ApplyProblemDetailsDefaults(httpContext, problemDetails, statusCode.Value);
+
+            return problemDetails;
         }
 
         private void ApplyProblemDetailsDefaults(HttpContext httpContext, ProblemDetails problemDetails, int statusCode)
